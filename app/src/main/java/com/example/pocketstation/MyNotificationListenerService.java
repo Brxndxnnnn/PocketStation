@@ -138,6 +138,7 @@ public class MyNotificationListenerService extends NotificationListenerService {
             if (Objects.equals(app_name, "Telegram")) app_name = "TL";
             if (Objects.equals(app_name, "Instagram")) app_name = "IG";
 
+            title = stripBeforeFirstWhitespace(title);
             title = trimToBytes(title, 7);
             text = trimToBytes(text, 9);
 
@@ -178,6 +179,7 @@ public class MyNotificationListenerService extends NotificationListenerService {
     public Boolean filterNotifications(String appName, String sender, String text) {
         if (appName == "INVALID") return false; // NOT registered app, dont send notif
         else if (text == "Checking for new messages") return false; // Some whatsapp checks, dont send
+        else if (text.contains("new messages")) return false;
         else return true;
     }
 
@@ -205,5 +207,13 @@ public class MyNotificationListenerService extends NotificationListenerService {
             e.printStackTrace();
             return content;
         }
+    }
+
+    public static String stripBeforeFirstWhitespace(String str) {
+        int spaceIndex = str.indexOf(' '); // Find the index of the first whitespace
+        if (spaceIndex != -1) {
+            return str.substring(0, spaceIndex); // Return the substring before the first whitespace
+        }
+        return str; // If no whitespace is found, return the original string
     }
 }
