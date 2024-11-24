@@ -17,8 +17,10 @@ import android.service.notification.StatusBarNotification;
 import android.util.Log;
 
 import java.io.UnsupportedEncodingException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -50,6 +52,12 @@ public class MyNotificationListenerService extends NotificationListenerService {
     public void onCreate() {
         super.onCreate();
         startConnectionRetry();
+    }
+
+    private String getCurrentDateTime() {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM HH:mm:ss"); // Day/Month, Time with seconds
+        Calendar calendar = Calendar.getInstance();
+        return sdf.format(calendar.getTime());
     }
 
     private void startConnectionRetry() {
@@ -95,6 +103,16 @@ public class MyNotificationListenerService extends NotificationListenerService {
                 sendBLEStatusBroadcast(true, deviceName);
                 bluetoothGatt = gatt;
                 bluetoothGatt.discoverServices(); // Start service discovery
+
+                // Add a delay (use Handler or Thread for delay)
+//                new Handler().postDelayed(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        // Once the delay is done, send the date/time
+//                        String dateTime = getCurrentDateTime();
+//                        sendNotificationDataOverBLE("DT:" + dateTime);
+//                    }
+//                }, 3000); // Delay of 3 seconds (3000 ms)
             } else if (newState == BluetoothGatt.STATE_DISCONNECTED) {
                 Log.d(TAG, "Disconnected from GATT server.");
                 isConnected = false;
@@ -109,6 +127,8 @@ public class MyNotificationListenerService extends NotificationListenerService {
                 BluetoothGattService service = gatt.getService(SERVICE_UUID);
                 if (service != null) {
                     writeCharacteristic = service.getCharacteristic(CHARACTERISTIC_UUID);
+                    String dateTime = getCurrentDateTime();
+                    sendNotificationDataOverBLE("DT:" + dateTime);
                 }
             }
         }
